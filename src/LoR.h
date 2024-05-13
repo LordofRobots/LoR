@@ -2,7 +2,7 @@
 #define LOR_H
 
 #include <Arduino.h>
-#include <Bluepad32.h>
+
 
 // Define the LoRClass class to manage serial input handling
 class LoRClass {
