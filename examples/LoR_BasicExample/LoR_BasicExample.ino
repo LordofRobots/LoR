@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "LoR.h"
 
 void setup() {
