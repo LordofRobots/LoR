@@ -1,5 +1,4 @@
 #include "LoR.h"
-#include <Bluepad32.h>
 
 // Define the specific word you're looking for
 const String LoRClass::targetWord = "obliviate";

@@ -2,6 +2,8 @@
 #define LOR_H
 
 #include <Arduino.h>
+#include <Bluepad32.h>         // Include Bluepad32 library for Bluetooth gamepad support
+#include <Adafruit_NeoPixel.h> // Include Adafruit NeoPixel library for LED strip control
 
 
 // Define the LoRClass class to manage serial input handling
