@@ -91,12 +91,12 @@ void Motion_Control(int ForwardBackward_Axis, int TurnLeftRight_Axis) {
 // MINIBOT 3 MOTOR DRIVE ----------------------------------------------
 //send values to all motors
 void Drive_Control(int LEFT, int RIGHT) {
-  LoR.Set_Motor_Output(LEFT, Motor_M1_A, Motor_M1_B);
-  LoR.Set_Motor_Output(LEFT, Motor_M2_A, Motor_M2_B);
-  LoR.Set_Motor_Output(LEFT, Motor_M3_A, Motor_M3_B);
-  LoR.Set_Motor_Output(-RIGHT, Motor_M4_A, Motor_M4_B);
-  LoR.Set_Motor_Output(-RIGHT, Motor_M5_A, Motor_M5_B);
-  LoR.Set_Motor_Output(-RIGHT, Motor_M6_A, Motor_M6_B);
+  LoR.Set_Motor_Output(LEFT, M1);
+  LoR.Set_Motor_Output(LEFT, M2);
+  LoR.Set_Motor_Output(LEFT, M3);
+  LoR.Set_Motor_Output(-RIGHT, M4);
+  LoR.Set_Motor_Output(-RIGHT, M5);
+  LoR.Set_Motor_Output(-RIGHT, M6);
 }
 
 
@@ -135,53 +135,6 @@ void LED_SetColour(uint32_t color) {
 }
 
 
-// //////////////////////////////////////////////////////////////////////////
-// //           BluePad32 controller config and functions                  //
-// //////////////////////////////////////////////////////////////////////////
-
-// ControllerPtr myController = nullptr;  // Define a single controller pointer
-// // SETUP BLUEPAD -----------------------------------------------------------------------------
-// void INIT_BluePad32() {
-//   const uint8_t* addr = BP32.localBdAddress();
-//   Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
-//   // Setup the Bluepad32 callbacks
-//   BP32.setup(&onConnectedController, &onDisconnectedController);
-
-//   // "forgetBluetoothKeys()" should be called when the user performs
-//   // a "device factory reset", or similar.
-//   // Calling "forgetBluetoothKeys" in setup() just as an example.
-//   // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
-//   // But it might also fix some connection / re-connection issues.
-//   //BP32.forgetBluetoothKeys();
-
-//   // Enables mouse / touchpad support for gamepads that support them.
-//   // When enabled, controllers like DualSense and DualShock4 generate two connected devices:
-//   // - First one: the gamepad
-//   // - Second one, which is a "virtual device", is a mouse.
-//   // By default, it is disabled.
-//   BP32.enableVirtualDevice(false);
-// }
-
-// // GAMEPAD CONNECT -----------------------------------------------------------------------------
-// void onConnectedController(ControllerPtr ctl) {
-//   if (myController == nullptr) {
-//     Serial.println("Controller connected");
-//     myController = ctl;  // Assign the connected controller to the single pointer
-//     myController->playDualRumble(100, 100, 255, 255);
-//   } else {
-//     Serial.println("Another controller tried to connect but is rejected");
-//     ctl->disconnect();  // Reject the connection if another controller tries to connect
-//   }
-// }
-
-// // GAMEPAD DISCONNECT -----------------------------------------------------------------------------
-// void onDisconnectedController(ControllerPtr ctl) {
-//   if (myController == ctl) {
-//     Serial.println("Controller disconnected");
-//     LED_SetColour(RED);
-//     myController = nullptr;  // Reset the controller pointer when disconnected
-//   }
-// }
 
 // GAMEPAD SERIAL OUTPUT -----------------------------------------------------------------------------
 void dumpGamepad(ControllerPtr ctl) {
