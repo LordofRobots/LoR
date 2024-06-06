@@ -36,6 +36,13 @@ const int motorPins_B[] = { motorPin_M1_B, motorPin_M2_B, motorPin_M3_B, motorPi
 const int MOTOR_PWM_Channel_A[] = { Motor_M1_A, Motor_M2_A, Motor_M3_A, Motor_M4_A, Motor_M5_A, Motor_M6_A };
 const int MOTOR_PWM_Channel_B[] = { Motor_M1_B, Motor_M2_B, Motor_M3_B, Motor_M4_B, Motor_M5_B, Motor_M6_B };
 
+// Define constants
+const int PWM_FREQUENCY = 20000;
+const int PWM_RESOLUTION = 8;
+const int MAX_SPEED = 255;
+const int MIN_STARTING_SPEED = 100;
+const int STOP = 0;
+
 // Define the specific word you're looking for
 const String LoRClass::targetWord = "obliviate";
 
@@ -59,6 +66,9 @@ void LoRClass::begin() {
   if (result != pdPASS) {
     Serial.println("Failed to create task!");
   }
+  
+  LoR.INIT_GPIO();
+  LoR.INIT_PWM();
 }
 
 // Function to handle serial input in a separate task
@@ -78,6 +88,103 @@ void LoRClass::handleSerialInput(void* parameter) {
         }
         vTaskDelay(10 / portTICK_PERIOD_MS);  // Add a small delay to prevent the task from hogging the CPU
     }
+}
+
+
+/**
+ * Initializes the GPIO pins used for motors and LEDs.
+ * Sets initial states to ensure the system starts correctly.
+ * This includes setting motor pins to LOW to avoid unintended movements
+ * and ensuring the motor enable pin is activated after a brief delay.
+ */
+void LoRClass::INIT_GPIO() {
+    // Initialize LED and motor enable pins
+    pinMode(LED_DataPin, OUTPUT);
+    pinMode(SwitchPin, INPUT_PULLUP);
+    pinMode(MotorEnablePin, OUTPUT);
+    digitalWrite(MotorEnablePin, LOW);
+
+    // Initialize motor control pins
+    for (int i = 0; i < 6; i++) {
+        pinMode(motorPins_A[i], OUTPUT);
+        pinMode(motorPins_B[i], OUTPUT);
+        digitalWrite(motorPins_A[i], LOW);
+        digitalWrite(motorPins_B[i], LOW);
+    }
+
+    // Ensure stable start-up
+    delay(1000);
+    digitalWrite(MotorEnablePin, HIGH);
+
+    // Check motor functionality with start-up tones
+    Start_Tone();
+}
+
+/**
+ * Configures the PWM settings for motor control.
+ * Sets up PWM channels for each motor pin using predefined frequency and resolution.
+ */
+void LoRClass::INIT_PWM() {
+    for (int i = 0; i < 6; i++) {
+        ledcSetup(MOTOR_PWM_Channel_A[i], PWM_FREQUENCY, PWM_RESOLUTION);
+        ledcSetup(MOTOR_PWM_Channel_B[i], PWM_FREQUENCY, PWM_RESOLUTION);
+        ledcAttachPin(motorPins_A[i], MOTOR_PWM_Channel_A[i]);
+        ledcAttachPin(motorPins_B[i], MOTOR_PWM_Channel_B[i]);
+    }
+}
+
+/**
+ * Generates a brief tone on each motor to verify correct operation.
+ * This function cycles through each motor, toggling its state rapidly to create an audible tone.
+ */
+void LoRClass::Start_Tone() {
+    for (int i = 0; i < 6; i++) {
+        unsigned long toneTime = millis() + 200;
+        bool state = false;
+        while (millis() < toneTime) {
+            digitalWrite(motorPins_A[i], state);
+            digitalWrite(motorPins_B[i], !state);
+            state = !state;
+            unsigned long waitTime = micros() + (100 * (i + 1));
+            while (micros() < waitTime);
+        }
+        digitalWrite(motorPins_A[i], LOW);
+        digitalWrite(motorPins_B[i], LOW);
+        delay(50);
+    }
+}
+
+/**
+ * Controls the rate of change in motor speed to smooth transitions.
+ * This function helps in preventing abrupt changes in motor speed which can be mechanically stressful.
+ *
+ * @param inputTarget The desired motor speed.
+ * @param inputCurrent The current motor speed.
+ * @return The new motor speed adjusted according to the slew rate.
+ */
+int LoRClass::SlewRateFunction(int inputTarget, int inputCurrent, int Rate = 200) {
+    int speedDiff = inputTarget - inputCurrent;
+    if (speedDiff > 0) inputCurrent += min(speedDiff, Rate);
+    else if (speedDiff < 0) inputCurrent -= min(-speedDiff, Rate);
+    inputCurrent = constrain(inputCurrent, -512, 512);
+    return inputCurrent;
+}
+
+/**
+ * Sets the motor output based on computed values.
+ * This function maps the desired motor output to the PWM value range configured for the motor drivers.
+ *
+ * @param output The desired output level ranging from -512 to 512.
+ * @param motorChA PWM channel for motor A.
+ * @param motorChB PWM channel for motor B.
+ */
+void LoRClass::Set_Motor_Output(int output, int motorChA, int motorChB) {
+    output = constrain(output, -512, 512);
+    int mappedValue = map(abs(output), 0, 512, MIN_STARTING_SPEED, MAX_SPEED);
+    int pinA = output > 0 ? mappedValue : STOP;
+    int pinB = output < 0 ? mappedValue : STOP;
+    ledcWrite(motorChA, pinA);
+    ledcWrite(motorChB, pinB);
 }
 
 // Global instance of LoRClass
