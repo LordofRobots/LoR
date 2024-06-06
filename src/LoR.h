@@ -36,8 +36,8 @@
 
 // IO Interface Definitions:
 // Defines pin numbers for various outputs and inputs used throughout the robotic system.
-#define LED_DataPin 12        // Data pin for LED output
 #define LED_COUNT 36          // Number of LEDs in the NeoPixel strip
+#define LED_DataPin 12        // Data pin for LED output
 #define SwitchPin 34          // Input pin for a switch
 #define channel1Pin 16        // General purpose I/O pin
 #define channel2Pin 17
@@ -97,6 +97,7 @@ const int Motor_M5_B = 9;
 const int Motor_M6_A = 10;
 const int Motor_M6_B = 11;
 
+
 /**
  * Class LoRClass
  * Core class for managing robotics operations, handling tasks such as motor control,
@@ -113,9 +114,19 @@ public:
     void INIT_PWM();     // Sets up PWM channels for motor control
     void Start_Tone();   // Generates a start-up tone to indicate readiness
 
+    void INIT_BluePad32();
+
+    // Adding ControllerManager properties and methods
+    ControllerPtr myController = nullptr;
+    static void onConnectedController(ControllerPtr ctl);
+    static void onDisconnectedController(ControllerPtr ctl);
+	
     // Motor control functions:
     int SlewRateFunction(int Input_Target, int Input_Current, int Rate);  // Adjusts motor speed to target gradually
     void Set_Motor_Output(int Output, int Motor_ChA, int Motor_ChB);  // Sets the motor output based on control inputs
+
+
+
 
 private:
     static void handleSerialInput(void* parameter);  // Handles incoming serial commands
@@ -123,6 +134,8 @@ private:
 
     uint16_t stackSize;  // Stack size for FreeRTOS tasks
     uint8_t priority;    // Task priority
+	
+
 };
 
 extern LoRClass LoR;  // Extern instance of LoRClass

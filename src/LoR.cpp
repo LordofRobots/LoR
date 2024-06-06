@@ -43,6 +43,7 @@ const int MAX_SPEED = 255;
 const int MIN_STARTING_SPEED = 100;
 const int STOP = 0;
 
+
 // Define the specific word you're looking for
 const String LoRClass::targetWord = "obliviate";
 
@@ -69,6 +70,7 @@ void LoRClass::begin() {
   
   LoR.INIT_GPIO();
   LoR.INIT_PWM();
+  LoR.INIT_BluePad32();
 }
 
 // Function to handle serial input in a separate task
@@ -187,5 +189,32 @@ void LoRClass::Set_Motor_Output(int output, int motorChA, int motorChB) {
     ledcWrite(motorChB, pinB);
 }
 
+void LoRClass::INIT_BluePad32() {
+    const uint8_t* addr = BP32.localBdAddress();
+    Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
+    BP32.setup(&LoRClass::onConnectedController, &LoRClass::onDisconnectedController);
+    BP32.enableVirtualDevice(false);
+}
+
+void LoRClass::onConnectedController(ControllerPtr ctl) {
+    if (LoR.myController == nullptr) {
+        LoR.myController = ctl;
+		LoR.myController->playDualRumble(100, 100, 255, 255);
+	} else {
+    Serial.println("Another controller tried to connect but is rejected");
+    ctl->disconnect();  // Reject the connection if another controller tries to connect    }
+	}
+	}
+
+void LoRClass::onDisconnectedController(ControllerPtr ctl) {
+    if (LoR.myController == ctl) {
+        LoR.myController = nullptr;
+		Serial.println("Controller disconnected");
+        // Additional code for when controller disconnects
+    }
+}
+
+
 // Global instance of LoRClass
 LoRClass LoR;
+

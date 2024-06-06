@@ -109,6 +109,7 @@ void Drive_Control(int LEFT, int RIGHT) {
 // SETUP & CONFIG --------------------------------------------------------
 // Set a specific color for the entire NeoPixel strip
 // NeoPixel Configurations
+
 Adafruit_NeoPixel strip(LED_COUNT, LED_DataPin, NEO_GRB + NEO_KHZ800);
 const uint32_t RED = strip.Color(255, 0, 0, 0);
 const uint32_t GREEN = strip.Color(0, 255, 0, 0);
@@ -134,53 +135,53 @@ void LED_SetColour(uint32_t color) {
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//           BluePad32 controller config and functions                  //
-//////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////
+// //           BluePad32 controller config and functions                  //
+// //////////////////////////////////////////////////////////////////////////
 
-ControllerPtr myController = nullptr;  // Define a single controller pointer
-// SETUP BLUEPAD -----------------------------------------------------------------------------
-void INIT_BluePad32() {
-  const uint8_t* addr = BP32.localBdAddress();
-  Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
-  // Setup the Bluepad32 callbacks
-  BP32.setup(&onConnectedController, &onDisconnectedController);
+// ControllerPtr myController = nullptr;  // Define a single controller pointer
+// // SETUP BLUEPAD -----------------------------------------------------------------------------
+// void INIT_BluePad32() {
+//   const uint8_t* addr = BP32.localBdAddress();
+//   Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
+//   // Setup the Bluepad32 callbacks
+//   BP32.setup(&onConnectedController, &onDisconnectedController);
 
-  // "forgetBluetoothKeys()" should be called when the user performs
-  // a "device factory reset", or similar.
-  // Calling "forgetBluetoothKeys" in setup() just as an example.
-  // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
-  // But it might also fix some connection / re-connection issues.
-  //BP32.forgetBluetoothKeys();
+//   // "forgetBluetoothKeys()" should be called when the user performs
+//   // a "device factory reset", or similar.
+//   // Calling "forgetBluetoothKeys" in setup() just as an example.
+//   // Forgetting Bluetooth keys prevents "paired" gamepads to reconnect.
+//   // But it might also fix some connection / re-connection issues.
+//   //BP32.forgetBluetoothKeys();
 
-  // Enables mouse / touchpad support for gamepads that support them.
-  // When enabled, controllers like DualSense and DualShock4 generate two connected devices:
-  // - First one: the gamepad
-  // - Second one, which is a "virtual device", is a mouse.
-  // By default, it is disabled.
-  BP32.enableVirtualDevice(false);
-}
+//   // Enables mouse / touchpad support for gamepads that support them.
+//   // When enabled, controllers like DualSense and DualShock4 generate two connected devices:
+//   // - First one: the gamepad
+//   // - Second one, which is a "virtual device", is a mouse.
+//   // By default, it is disabled.
+//   BP32.enableVirtualDevice(false);
+// }
 
-// GAMEPAD CONNECT -----------------------------------------------------------------------------
-void onConnectedController(ControllerPtr ctl) {
-  if (myController == nullptr) {
-    Serial.println("Controller connected");
-    myController = ctl;  // Assign the connected controller to the single pointer
-    myController->playDualRumble(100, 100, 255, 255);
-  } else {
-    Serial.println("Another controller tried to connect but is rejected");
-    ctl->disconnect();  // Reject the connection if another controller tries to connect
-  }
-}
+// // GAMEPAD CONNECT -----------------------------------------------------------------------------
+// void onConnectedController(ControllerPtr ctl) {
+//   if (myController == nullptr) {
+//     Serial.println("Controller connected");
+//     myController = ctl;  // Assign the connected controller to the single pointer
+//     myController->playDualRumble(100, 100, 255, 255);
+//   } else {
+//     Serial.println("Another controller tried to connect but is rejected");
+//     ctl->disconnect();  // Reject the connection if another controller tries to connect
+//   }
+// }
 
-// GAMEPAD DISCONNECT -----------------------------------------------------------------------------
-void onDisconnectedController(ControllerPtr ctl) {
-  if (myController == ctl) {
-    Serial.println("Controller disconnected");
-    LED_SetColour(RED);
-    myController = nullptr;  // Reset the controller pointer when disconnected
-  }
-}
+// // GAMEPAD DISCONNECT -----------------------------------------------------------------------------
+// void onDisconnectedController(ControllerPtr ctl) {
+//   if (myController == ctl) {
+//     Serial.println("Controller disconnected");
+//     LED_SetColour(RED);
+//     myController = nullptr;  // Reset the controller pointer when disconnected
+//   }
+// }
 
 // GAMEPAD SERIAL OUTPUT -----------------------------------------------------------------------------
 void dumpGamepad(ControllerPtr ctl) {
@@ -209,23 +210,23 @@ void dumpGamepad(ControllerPtr ctl) {
 
 // GAMEPAD BATTERY -----------------------------------------------
 void CheckController_Battery() {
-  int Batt_Level = map(myController->battery(), 0, 255, 1, 8);
+  int Batt_Level = map(LoR.myController->battery(), 0, 255, 1, 8);
 
-  myController->setPlayerLEDs(Batt_Level);
+  LoR.myController->setPlayerLEDs(Batt_Level);
   if (Batt_Level < 4) {
-    myController->setColorLED(200, 255, 0);
+    LoR.myController->setColorLED(200, 255, 0);
   } else if (Batt_Level < 2) {
-    myController->setColorLED(255, 0, 0);
+    LoR.myController->setColorLED(255, 0, 0);
     //myController->playDualRumble(100, 100, 100, 100);
   } else {
-    myController->setColorLED(0, 255, 0);
+    LoR.myController->setColorLED(0, 255, 0);
   }
 }
 
 // GAME PAD COMPATIBILITY -----------------------------------------------
 void Process_GamePad() {
-  if (myController->isGamepad()) {
-    dumpGamepad(myController);
+  if (LoR.myController->isGamepad()) {
+    dumpGamepad(LoR.myController);
     LED_SetColour(GREEN);
     //CheckController_Battery();
   } else {
@@ -243,7 +244,7 @@ void setup() {
   INIT_Serial();
   INIT_rgbLED();
   LoR.begin();  // Initialize the LoR library
-  INIT_BluePad32();
+  // INIT_BluePad32();
 
   LED_SetColour(RED);
   Serial.println("MiniBot: CORE System Ready! ");
@@ -257,12 +258,15 @@ void setup() {
 void loop() {
 
   BP32.update();
-  if (myController && myController->isConnected()) {
+  if (LoR.myController && LoR.myController->isConnected()) {
     Process_GamePad();
-    Motion_Control(myController->axisY(), myController->axisRX());  // Joystick control
+    Motion_Control(LoR.myController->axisY(), LoR.myController->axisRX());  // Joystick control
     Drive_Control(Motor_LEFT_SetValue, Motor_RIGHT_SetValue);
+    LED_SetColour(GREEN);
+
   }
   else {  //Stop/Standby
     Drive_Control(STOP, STOP);
+    LED_SetColour(RED);
   }
 }
