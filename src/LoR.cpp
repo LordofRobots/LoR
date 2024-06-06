@@ -176,11 +176,12 @@ int LoRClass::SlewRateFunction(int inputTarget, int inputCurrent, int Rate = 200
  * Sets the motor output based on computed values.
  * This function maps the desired motor output to the PWM value range configured for the motor drivers.
  *
- * @param output The desired output level ranging from -512 to 512.
- * @param motorChA PWM channel for motor A.
- * @param motorChB PWM channel for motor B.
+ * @param output - The desired output level ranging from -512 to 512.
+ * @param M_Output - the desired Mx motor output used.
  */
-void LoRClass::Set_Motor_Output(int output, int motorChA, int motorChB) {
+void LoRClass::Set_Motor_Output(int output, int M_Output) {
+	int motorChA = MOTOR_PWM_Channel_A[M_Output];
+	int motorChB = MOTOR_PWM_Channel_B[M_Output];
     output = constrain(output, -512, 512);
     int mappedValue = map(abs(output), 0, 512, MIN_STARTING_SPEED, MAX_SPEED);
     int pinA = output > 0 ? mappedValue : STOP;

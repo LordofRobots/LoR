@@ -54,6 +54,13 @@ int driveSpeed = lowSpeed;  // default speed
 #define motorPin_M5_B 25
 #define motorPin_M6_A 32
 #define motorPin_M6_B 4
+#define M1 0
+#define M2 1
+#define M3 2
+#define M4 3
+#define M5 4
+#define M6 5
+
 const int motorPins_A[] = { motorPin_M1_A, motorPin_M2_A, motorPin_M3_A, motorPin_M4_A, motorPin_M5_A, motorPin_M6_A };
 const int motorPins_B[] = { motorPin_M1_B, motorPin_M2_B, motorPin_M3_B, motorPin_M4_B, motorPin_M5_B, motorPin_M6_B };
 
@@ -84,7 +91,7 @@ const int PWM_RESOLUTION = 8;
 const int MIN_STARTING_SPEED = 150;
 const int MAX_SPEED = 255;
 const int STOP = 0;
-void Set_Motor_Output(int Output, int Motor_ChA, int Motor_ChB) {
+void Set_Motor_Output(int Output, int M_Output) {
   int Mapped_Value = map(abs(Output), 0, 100, MIN_STARTING_SPEED, MAX_SPEED);
   int A, B = 0;
   if (Output < 0) {  // Rotate Clockwise
@@ -97,24 +104,24 @@ void Set_Motor_Output(int Output, int Motor_ChA, int Motor_ChB) {
     A = STOP;
     B = STOP;
   }
-  ledcWrite(Motor_ChA, A);  //send to motor control pins
-  ledcWrite(Motor_ChB, B);
+  ledcWrite(motorPins_A[M_Output], A);  //send to motor control pins
+  ledcWrite(motorPins_A[M_Output], B);
 }
 
 // configure motor output
 void Motor_Control(int Left_Drive_Power, int Right_Drive_Power) {
-  Set_Motor_Output(Left_Drive_Power, Motor_M1_A, Motor_M1_B);
-  Set_Motor_Output(Left_Drive_Power, Motor_M2_A, Motor_M2_B);
-  Set_Motor_Output(-Right_Drive_Power, Motor_M5_A, Motor_M5_B);
-  Set_Motor_Output(-Right_Drive_Power, Motor_M6_A, Motor_M6_B);
+  Set_Motor_Output(Left_Drive_Power, M1);
+  Set_Motor_Output(Left_Drive_Power, M2);
+  Set_Motor_Output(-Right_Drive_Power, M5);
+  Set_Motor_Output(-Right_Drive_Power, M6);
 }
 
 // stop motors from spinning
 void Motor_STOP() {
-  Set_Motor_Output(STOP, Motor_M1_A, Motor_M1_B);
-  Set_Motor_Output(STOP, Motor_M2_A, Motor_M2_B);
-  Set_Motor_Output(STOP, Motor_M5_A, Motor_M5_B);
-  Set_Motor_Output(STOP, Motor_M6_A, Motor_M6_B);
+  Set_Motor_Output(STOP, M1);
+  Set_Motor_Output(STOP, M2);
+  Set_Motor_Output(STOP, M5);
+  Set_Motor_Output(STOP, M6);
 }
 
 // Tones created in the motors. Cycle through each motor.
@@ -607,10 +614,8 @@ void setup() {
 
   // configure LED PWM functionalitites
   for (int i = 0; i < 6; i++) {
-    ledcSetup(MOTOR_PWM_Channel_A[i], PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcSetup(MOTOR_PWM_Channel_B[i], PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcAttachPin(motorPins_A[i], MOTOR_PWM_Channel_A[i]);
-    ledcAttachPin(motorPins_B[i], MOTOR_PWM_Channel_B[i]);
+    ledcAttachChannel(motorPins_A[i],PWM_FREQUENCY, PWM_RESOLUTION, MOTOR_PWM_Channel_A[i]);
+    ledcAttachChannel(motorPins_B[i],PWM_FREQUENCY, PWM_RESOLUTION, MOTOR_PWM_Channel_B[i]);
   }
 
   WifiSetup();

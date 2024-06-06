@@ -64,6 +64,12 @@
 #define motorPin_M6_B 32
 #define MotorEnablePin 13     // Pin to enable/disable motor operation
 
+#define M1 0
+#define M2 1
+#define M3 2
+#define M4 3
+#define M5 4
+#define M6 5
 
 
 // Extern declarations for motor pins arrays to be used across multiple files.
@@ -122,8 +128,18 @@ public:
     static void onDisconnectedController(ControllerPtr ctl);
 	
     // Motor control functions:
+	
+ //Controls the rate of change in motor speed to smooth transitions.
+ //This function helps in preventing abrupt changes in motor speed which can be mechanically stressful.
+ //
+ //@param inputTarget The desired motor speed.
+ //@param inputCurrent The current motor speed.
+ //@param Rate The acceleration of the change in speed. low value = slow. high value = fast
+ //@return The new motor speed adjusted according to the slew rate.
     int SlewRateFunction(int Input_Target, int Input_Current, int Rate);  // Adjusts motor speed to target gradually
-    void Set_Motor_Output(int Output, int Motor_ChA, int Motor_ChB);  // Sets the motor output based on control inputs
+
+//  Output (this is motor speed) = -512 to 512, M_Output (this is which motor output used) = M1 to M6
+    void Set_Motor_Output(int Output, int M_Output);  // Sets the motor output based on control inputs
 
 
 

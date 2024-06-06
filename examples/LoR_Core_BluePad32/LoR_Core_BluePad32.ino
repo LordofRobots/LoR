@@ -198,7 +198,6 @@ void setup() {
   LoR.begin();  // Initialize the LoR library
   // INIT_BluePad32();
 
-  LED_SetColour(RED);
   Serial.println("MiniBot: CORE System Ready! ");
 }
 
