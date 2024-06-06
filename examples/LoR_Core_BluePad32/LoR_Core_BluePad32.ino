@@ -9,14 +9,13 @@
  * input and output operations, including motor control and serial communication.
  * 
  * Key Features:
- * - rive Control: Enables movement using joystick inputs.
+ * - Drive Control: Enables movement using joystick inputs.
  * - Motor Speed Control: Uses a slew rate control function to manage acceleration and deceleration smoothly.
  * - LED Feedback System: Controls an Adafruit NeoPixel LED strip to provide visual feedback based on the system status.
  * - Gamepad Support: Integrates with Bluepad32 to support various gamepad controllers for intuitive control.
  * 
  * Components:
  * - Motion_Control: Processes joystick inputs to compute the target motor speeds.
- * - Set_Motor_Output: Manages individual motor speeds based on computed targets.
  * - Motor_Control: Coordinates the updating of all motors' outputs.
  * - NeoPixel_SetColour: Manages LED colors to reflect different operational statuses.
  * - Controller Connection Management: Handles the connection and disconnection events for gamepad controllers.
@@ -32,7 +31,7 @@
  * - Install ESP32 boards through board manager. Must include this link in file/preferences https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
  * - Install BluePad32 boards through board manager. Must include this link in file/preferences https://raw.githubusercontent.com/ricardoquesada/esp32-arduino-lib-builder/master/bluepad32_files/package_esp32_bluepad32_index.json
  * - The code is designed to be uploaded to an ESP32 controller.
- * - Target board: Choose the bluepad version of the "ESP32 dev module"
+ * - Target board: Choose the BluePad32 version of the "ESP32 dev module"
  *
  * Author:
  * Dave Barratt
