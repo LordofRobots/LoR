@@ -103,6 +103,15 @@ const int Motor_M5_B = 9;
 const int Motor_M6_A = 10;
 const int Motor_M6_B = 11;
 
+// Define PWM parameters
+const double SERVO_PWM_FREQUENCY = 50;   // Frequency of PWM signal (50Hz)
+const double SERVO_PWM_RESOLUTION = 12;  // Resolution of PWM signal (12-bit, giving 4095 levels)
+const double minPulseWidth = 500;
+const double maxPulseWidth = 2500;
+const int SERVO_PWM_MIN = int(minPulseWidth / ((1000000 / SERVO_PWM_FREQUENCY) / 4095));
+const int SERVO_PWM_MAX = int(maxPulseWidth / ((1000000 / SERVO_PWM_FREQUENCY) / 4095));
+const int Servo_Pin[] = { 16, 17, 21, 22 };
+const int Servo_CH[] = { 12, 13, 14, 15 };
 
 /**
  * Class LoRClass
@@ -119,8 +128,13 @@ public:
     void INIT_GPIO();    // Initializes all GPIO pins used by the system
     void INIT_PWM();     // Sets up PWM channels for motor control
     void Start_Tone();   // Generates a start-up tone to indicate readiness
-
     void INIT_BluePad32();
+	
+	// Initializes Servo motors attached to the LoR_Core AUX_IO Ports.
+	void INIT_Servo();
+	
+	//This servo function performs the required processes to move a RC serco to a desired position, 0 to 180 degrees
+	void Servo_SetPosition(int Servo_ID, int Position_Degrees);
 
     // Adding ControllerManager properties and methods
     ControllerPtr myController = nullptr;

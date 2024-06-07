@@ -92,7 +92,9 @@ void LoRClass::handleSerialInput(void* parameter) {
     }
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////
+//                               Motors                                         //
+//////////////////////////////////////////////////////////////////////////////////
 /**
  * Initializes the GPIO pins used for motors and LEDs.
  * Sets initial states to ensure the system starts correctly.
@@ -169,6 +171,7 @@ int LoRClass::SlewRateFunction(int inputTarget, int inputCurrent, int Rate = 200
     if (speedDiff > 0) inputCurrent += min(speedDiff, Rate);
     else if (speedDiff < 0) inputCurrent -= min(-speedDiff, Rate);
     inputCurrent = constrain(inputCurrent, -512, 512);
+	delay(5);
     return inputCurrent;
 }
 
@@ -184,11 +187,15 @@ void LoRClass::Set_Motor_Output(int output, int M_Output) {
 	int motorChB = MOTOR_PWM_Channel_B[M_Output];
     output = constrain(output, -512, 512);
     int mappedValue = map(abs(output), 0, 512, MIN_STARTING_SPEED, MAX_SPEED);
-    int pinA = output > 0 ? mappedValue : STOP;
-    int pinB = output < 0 ? mappedValue : STOP;
-    ledcWrite(motorChA, pinA);
-    ledcWrite(motorChB, pinB);
+    int DutyA = output > 0 ? mappedValue : STOP;
+    int DutyB = output < 0 ? mappedValue : STOP;
+    ledcWrite(motorChA, DutyA);
+    ledcWrite(motorChB, DutyB);
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+//                               BLUEPAD                                        //
+//////////////////////////////////////////////////////////////////////////////////
 
 void LoRClass::INIT_BluePad32() {
     const uint8_t* addr = BP32.localBdAddress();
@@ -215,6 +222,24 @@ void LoRClass::onDisconnectedController(ControllerPtr ctl) {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+//                                SERVO                                        //
+//////////////////////////////////////////////////////////////////////////////////
+//Note this will need to be updated as per ESP32 v3.0.0 
+void LoRClass::INIT_Servo() {
+  for (int i = 0; i < 4; i++) {
+    pinMode(Servo_Pin[i], OUTPUT);
+    digitalWrite(Servo_Pin[i], 0);
+    ledcSetup(Servo_CH[i], SERVO_PWM_FREQUENCY, SERVO_PWM_RESOLUTION);
+    ledcAttachPin(Servo_Pin[i], Servo_CH[i]);
+  }
+}
+
+//Note this will need to be updated as per ESP32 v3.0.0 
+void LoRClass::Servo_SetPosition(int Servo_ID, int Position_Degrees) {
+  int DutyCycle = map(Position_Degrees, 0, 180, SERVO_PWM_MIN, SERVO_PWM_MAX);
+  ledcWrite(Servo_ID, DutyCycle);
+}
 
 // Global instance of LoRClass
 LoRClass LoR;
