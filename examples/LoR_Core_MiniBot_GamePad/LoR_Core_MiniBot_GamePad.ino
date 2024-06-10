@@ -86,8 +86,8 @@ void Motion_Control(int ForwardBackward_Axis, int TurnLeftRight_Axis) {
   RIGHT_TargetValue = constrain(RIGHT_TargetValue, -512, 512);
 
   // Apply the slew rate function to smoothly transition to new speed targets
-  Motor_LEFT_SetValue = LoR.SlewRateFunction(LEFT_TargetValue, Motor_LEFT_SetValue, 200);
-  Motor_RIGHT_SetValue = LoR.SlewRateFunction(RIGHT_TargetValue, Motor_RIGHT_SetValue, 200);
+  Motor_LEFT_SetValue = LoR.SlewRateFunction(LEFT_TargetValue, Motor_LEFT_SetValue, 300);
+  Motor_RIGHT_SetValue = LoR.SlewRateFunction(RIGHT_TargetValue, Motor_RIGHT_SetValue, 300);
 }
 
 // Sends the calculated values to motor controllers to drive the robot
