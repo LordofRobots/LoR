@@ -1,12 +1,53 @@
-/* LORD of ROBOTS - LoR_Core_WeInterface - 202305222133
-   Control inputs - LED Indication:
-    Command Recived - Green LEDs
-    none/Stop/standby - Red LEDs
+/*
+====================================================
+         LORD of ROBOTS - LoR_Core_WeInterface
+====================================================
+   Version       : LoR Core Web Interface - NOV 24, 2024
+   Author        : LORD of ROBOTS Development Team
+   Description   : Web-based control system for the MiniBot platform.
 
-  Drive configurations:
-    Standard tank style
+====================================================
+              PROGRAM FEATURES
+====================================================
+  - **Robot Control**:
+    - Movement: forward, backward, left, right, and stop.
+    - Speed modes: High/Low.
+    - Custom buttons for additional actions (A, B, C, D).
 
+  - **LED Indications**:
+    - Green: Command received.
+    - Red: Stop/standby.
+
+  - **Web Interface**:
+    - Hosted via Wi-Fi on ESP32.
+    - Interactive page with buttons and keyboard controls.
+
+  - **Motor Control**:
+    - PWM-based tank-style configuration.
+    - Smooth speed adjustments and stop functionality.
+
+====================================================
+              HOW TO CONNECT & CONTROL MINIBOT
+====================================================
+  1. Power on the MiniBot.
+  2. Connect your device (MOBILE, LAPTOP, TABLET) to the Wi-Fi network:
+     - SSID: `MiniBot`
+     - Password: `password`
+  3. Open a browser (CHROME PREFERED) and go to `http://10.0.0.1` to access the control interface.
+
+====================================================
+               CODE CONTENTS
+====================================================
+  1. Configurations: Wi-Fi, motor pins, and LED settings.
+  2. Motor Functions: Directional control and stop.
+  3. LED Functions: NeoPixel color indicators.
+  4. Web Server: Hosts the interface and processes commands.
+  5. Wi-Fi Setup: Configures ESP32 in Access Point mode.
+  6. Initialization: Sets up pins, peripherals, and defaults.
+
+====================================================
 */
+
 #include <Adafruit_NeoPixel.h>
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
@@ -17,22 +58,24 @@
 #include "esp_wifi.h"
 
 // version control and major control function settings
-String Version = "Base Version : LoR Core Web Interface : 0.0.0";
+String Version = "LoR Core Web Interface - NOV 24, 2024";
 
 //====================================================
-//===         Customizable Parameters              ===
+//===         Customizable Parameters              ===  MAKE CHANGES
 //====================================================
 
 // SSID & Password Definitions
-const String ssid = "MiniBot";
-const String password = "password";
+const String ssid = "MiniBot";       // CHANGE THIS IF YOU WANT A UNIQUE NETWORK FOR YOU MINIBOT
+const String password = "password";  // CHANGE THIS TO YOUR PREFERENCE
 
 // Drive Speeds (0%-100%)
 int highSpeed = 90;
-int lowSpeed = 50;
+int lowSpeed = 60;
 
 int driveSpeed = lowSpeed;  // default speed
 
+//====================================================
+//===         Variable Configurations              ===  DON'T TOUCH
 //====================================================
 
 // IO Interface Definitions
@@ -83,13 +126,13 @@ const int PWM_FREQUENCY = 20000;
 const int PWM_RESOLUTION = 8;
 
 //====================================================
-//===              Motor Controls                  ===
+//===              Motor Functions                 ===  DON'T TOUCH
 //====================================================
 
 /// Function to control motor output
 // Motor speed limits and starting speed
 const int MIN_STARTING_SPEED = 150;
-const int MAX_SPEED = 255;
+const int MAX_SPEED = 254;
 const int STOP = 0;
 void Set_Motor_Output(int Output, int M_Output) {
   int Mapped_Value = map(abs(Output), 0, 100, MIN_STARTING_SPEED, MAX_SPEED);
@@ -105,15 +148,15 @@ void Set_Motor_Output(int Output, int M_Output) {
     B = STOP;
   }
   ledcWrite(motorPins_A[M_Output], A);  //send to motor control pins
-  ledcWrite(motorPins_A[M_Output], B);
+  ledcWrite(motorPins_B[M_Output], B);
 }
 
 // configure motor output
 void Motor_Control(int Left_Drive_Power, int Right_Drive_Power) {
   Set_Motor_Output(Left_Drive_Power, M1);
   Set_Motor_Output(Left_Drive_Power, M2);
-  Set_Motor_Output(-Right_Drive_Power, M5);
-  Set_Motor_Output(-Right_Drive_Power, M6);
+  Set_Motor_Output(Right_Drive_Power, M5);
+  Set_Motor_Output(Right_Drive_Power, M6);
 }
 
 // stop motors from spinning
@@ -143,7 +186,7 @@ void Start_Tone() {
 }
 
 //====================================================
-//===              NeoPixels                       ===
+//===              NeoPixels                       ===   DON'T TOUCH
 //====================================================
 
 // NeoPixel Configurations
@@ -167,23 +210,23 @@ void NeoPixel_SetColour(uint32_t color) {
 
 
 //====================================================
-//===          Custom Button Functions             ===
+//===          Custom Button Functions             ===   ADD FUNCTIONS
 //====================================================
 
 void functionForward() {
-  Motor_Control(driveSpeed, driveSpeed);
+  Motor_Control(driveSpeed, -driveSpeed);
 }
 
 void functionBackward() {
-  Motor_Control(-driveSpeed, -driveSpeed);  // send power to drive base
-}
-
-void functionLeft() {
   Motor_Control(-driveSpeed, driveSpeed);  // send power to drive base
 }
 
+void functionLeft() {
+  Motor_Control(-driveSpeed, -driveSpeed);  // send power to drive base
+}
+
 void functionRight() {
-  Motor_Control(driveSpeed, -driveSpeed);  // send power to drive base
+  Motor_Control(driveSpeed, driveSpeed);  // send power to drive base
 }
 
 void functionStop() {
@@ -207,7 +250,7 @@ void functionD() {
 }
 
 //====================================================
-//===              Web Page                        ===
+//===              Web Page                        ===  DON'T TOUCH
 //====================================================
 
 // Web page (HTML, CSS, JavaScript) for controlling the robot
@@ -231,6 +274,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
       }
 
       h3 {
+        font-family: Monospace;
         color: #b3c1db;
         margin-bottom: 10px;
         font-style: italic;
@@ -414,7 +458,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
 
 //====================================================
-//===                  Server                      ===
+//===                  Server                      ===  DON'T TOUCH
 //====================================================
 
 // Function to start the server
@@ -422,6 +466,7 @@ httpd_handle_t Robot_httpd = NULL;
 void startServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.server_port = 80;
+  config.stack_size = 8192;
   httpd_uri_t index_uri = {
     .uri = "/",
     .method = HTTP_GET,
@@ -446,7 +491,7 @@ void startServer() {
 
 
 //====================================================
-//===                Handlers                      ===
+//===                Handlers                      ===  DON'T TOUCH
 //====================================================
 
 // HTTP handler for serving the web page
@@ -460,33 +505,16 @@ static esp_err_t index_handler(httpd_req_t *req) {
 String speed = "low";
 
 static esp_err_t cmd_handler(httpd_req_t *req) {
-  char *buf;
-  size_t buf_len;
-  char variable[32] = {
-    0,
-  };
-  //Serial.println("Recieved Somthing");
+  char buf[128];  // Fixed-size buffer to avoid dynamic allocation
+  char variable[32] = {0};
 
-  buf_len = httpd_req_get_url_query_len(req) + 1;
-  if (buf_len > 1) {
-    buf = (char *)malloc(buf_len);
-    if (!buf) {
-      httpd_resp_send_500(req);
-      return ESP_FAIL;
-    }
-    if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
-      if (httpd_query_key_value(buf, "go", variable, sizeof(variable)) == ESP_OK) {
-      } else {
-        free(buf);
-        httpd_resp_send_404(req);
-        return ESP_FAIL;
-      }
+  if (httpd_req_get_url_query_str(req, buf, sizeof(buf)) == ESP_OK) {
+    if (httpd_query_key_value(buf, "go", variable, sizeof(variable)) == ESP_OK) {
+      // Process the "go" variable...
     } else {
-      free(buf);
       httpd_resp_send_404(req);
       return ESP_FAIL;
     }
-    free(buf);
   } else {
     httpd_resp_send_404(req);
     return ESP_FAIL;
@@ -549,11 +577,16 @@ static esp_err_t cmd_handler(httpd_req_t *req) {
   }
 
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+//    Serial.printf("Free heap: %u\n", ESP.getFreeHeap());
+// Serial.printf("Min free heap: %u\n", ESP.getMinFreeHeap());
+// Serial.printf("Free stack: %u\n", uxTaskGetStackHighWaterMark(NULL));
   return httpd_resp_send(req, NULL, 0);
+
+ 
 }
 
 //====================================================
-//===              Wifi Setup                      ===
+//===              Wifi Setup                      ===  DON'T TOUCH
 //====================================================
 
 /* Put IP Address details */
@@ -573,7 +606,7 @@ void WifiSetup() {
 }
 
 //====================================================
-//===                 setup                        ===
+//===                  SETUP                       ===
 //====================================================
 
 // Set up pins, LED PWM functionalities and Serial and Serial2 communication
@@ -624,6 +657,9 @@ void setup() {
   Serial.println("MiniBot System Ready! Version = " + Version);
 }
 
+//====================================================
+//===               MAIN LOOP                      ===
+//====================================================
 
 void loop() {
 }

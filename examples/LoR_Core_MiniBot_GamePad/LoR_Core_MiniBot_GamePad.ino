@@ -1,50 +1,55 @@
-/**
- * LoR_Core_MiniBot_GamePad.ino
- * 
- * Description:
- * This Arduino sketch is designed for controlling a robotic platform using joystick input from a gamepad, 
- * integrating with the LoR (Lord of Robots) library for efficient control of wheel-driven robots. The sketch
- * supports dynamic movement control, motor speed adjustments using a slew rate control, and visual feedback through 
- * LED signaling using an Adafruit NeoPixel LED strip. The implementation is ideal for educational or prototyping 
- * purposes in robotic applications.
- * 
- * Key Features:
- * - Drive Control: Enables directional movement using joystick inputs.
- * - Motor Speed Control: Implements a slew rate function to ensure smooth acceleration and deceleration.
- * - LED Feedback System: Utilizes an LED strip to indicate system status and operational feedback.
- * - Gamepad Support: Integrates Bluepad32 library to allow control via various gamepad controllers.
- * 
- * Components:
- * - Motion_Control: Handles joystick inputs to determine motor speed and direction.
- * - Motor_Control: Updates motor outputs to execute the motion commands.
- * - NeoPixel_SetColour: Manages LED colors to signify different system statuses.
- * - Controller Connection Management: Manages gamepad connection and disconnection events.
- * 
- * Usage:
- * Deploy this project to control robotic platforms for educational and prototyping purposes. 
- * Adjust motor and pin configurations according to your specific hardware setup.
- * 
- * Setup:
- * - Include all necessary libraries and verify that hardware connections are correctly configured.
- * - Refer to the LoR library documentation for detailed usage and additional functionalities.
- * - Install ESP32 boards through the board manager with this URL in Arduino IDE file/preferences:
- *   https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
- * - Install BluePad32 boards with this URL:
- *   https://raw.githubusercontent.com/ricardoquesada/esp32-arduino-lib-builder/master/bluepad32_files/package_esp32_bluepad32_index.json
- * - Code is designed for ESP32 controllers; ensure the BluePad32 version of the "ESP32 dev module" is selected as the target board.
- *
- * Authors:
- * Dave Barratt
- * Khushi Tailor
- * 
- * Date:
- * JUNE 2, 2024
- */
+/*
+====================================================
+         LORD of ROBOTS - LoR_Core_MiniBot_GamePad
+====================================================
+   Version       : LoR Core MiniBot GamePad - JUNE 2, 2024
+   Authors       : LORD of ROBOTS Development Team
+   Description   : Gamepad-controlled system for the MiniBot platform 
+                   using joystick inputs and visual feedback.
+
+====================================================
+              PROGRAM FEATURES
+====================================================
+  - **Robot Control**:
+    - Movement: Smooth directional control (forward, backward, left, right).
+    - Motor Speed Control: Ensures smooth acceleration/deceleration using 
+      a slew rate function.
+    - Gamepad Support: Compatible with BluePad32-supported controllers.
+
+  - **LED Indications**:
+    - Green: Active control with gamepad connected.
+    - Yellow: Unsupported controller detected.
+    - Red: Robot in standby (no gamepad connected).
+
+  - **Gamepad Features**:
+    - Left joystick: Controls forward/backward motion.
+    - Right joystick: Controls turning left/right.
+    - Support for button inputs (future expansion).
+
+====================================================
+              HOW TO CONNECT & CONTROL MINIBOT
+====================================================
+  1. Power on the MiniBot.
+  2. Pair your gamepad with the LoR_Core using the your gamepad bluetooth pairing process.
+  3. Use the left joystick for movement and the right joystick for turning.
+
+====================================================
+               CODE CONTENTS
+====================================================
+  1. Motion Functions: Processes joystick input for directional control.
+  2. Motor Functions: Updates motor outputs based on motion commands.
+  3. LED Functions: Provides system status through NeoPixel color indicators.
+  4. Gamepad Functions: Processes gamepad input for motion and debugging.
+  5. Initialization: Configures motors, LEDs, and serial communication.
+  6. Main Loop: Continuously updates gamepad state and robot actions.
+
+====================================================
+*/
 
 #include <LoR.h>  // Include the Lord of Robots (LoR) library for robot control functionalities
 
 //////////////////////////////////////////////////////////////////////////
-/////             Serial Configuration and Functions                /////
+/////             Serial Configuration and Functions                 /////    DON'T TOUCH
 //////////////////////////////////////////////////////////////////////////
 
 // Initializes the Serial communication to debug and monitor robot status
@@ -55,7 +60,7 @@ void INIT_Serial() {
 }
 
 //////////////////////////////////////////////////////////////////////////
-/////                      Motion Functions                         /////
+/////                      Motion Functions                          /////   MAKE CHANGES
 //////////////////////////////////////////////////////////////////////////
 
 // Global variables to store current motor speed settings
@@ -101,7 +106,7 @@ void Drive_Control(int LEFT, int RIGHT) {
 }
 
 //////////////////////////////////////////////////////////////////////////
-//                     RGB LED Configuration and Functions             //
+//                     RGB LED Configuration and Functions              //   DON'T TOUCH
 //////////////////////////////////////////////////////////////////////////
 
 // RGB LED strip setup and configuration using Adafruit NeoPixel library
@@ -131,7 +136,7 @@ void LED_SetColour(uint32_t color) {
 }
 
 //////////////////////////////////////////////////////////////////////////
-//                      Gamepad Output Functions                      //
+//                      Gamepad Output Functions                        //    DON'T TOUCH
 //////////////////////////////////////////////////////////////////////////
 
 // Dumps gamepad state to the Serial Monitor for debugging
@@ -161,7 +166,7 @@ void dumpGamepad(ControllerPtr ctl) {
 
 
 //////////////////////////////////////////////////////////////////////////
-//                      Gamepad Processing Functions                   //
+//                      Gamepad Processing Functions                    //   DON'T TOUCH
 //////////////////////////////////////////////////////////////////////////
 
 // Processes connected gamepad inputs and sets appropriate LED color
@@ -177,7 +182,7 @@ void Process_GamePad() {
 }
 
 //////////////////////////////////////////////////////////////////////////
-//                          Main Setup Function                         //
+//                          Main Setup Function                         //   MAKE CHANGES
 //////////////////////////////////////////////////////////////////////////
 
 // Main setup function - initializes all configurations and libraries
@@ -185,11 +190,13 @@ void setup() {
   INIT_Serial();  // Initialize the serial communication for debugging output
   INIT_rgbLED();  // Initialize and configure the RGB LED strip
   LoR.begin();    // Initialize the LoR library for robotic control
+    LoR.INIT_Servo();       // Initialize the servo settings
+
   Serial.println("MiniBot: CORE System Ready! ");  // Print system ready message to the serial monitor
 }
 
 //////////////////////////////////////////////////////////////////////////
-//                          Main Loop Function                          //
+//                          Main Loop Function                          //   MAKE CHANGES
 //////////////////////////////////////////////////////////////////////////
 // Main loop function - executes the core logic repeatedly
 void loop() {
