@@ -8,6 +8,12 @@
                    using joystick inputs and visual feedback.
 
 ====================================================
+            IMPORTANT Target Device
+====================================================
+Target devive: ESP32 Dev Module - esp32_bluepad32
+
+
+====================================================
               PROGRAM FEATURES
 ====================================================
   - **Robot Control**:

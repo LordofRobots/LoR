@@ -7,6 +7,12 @@
    Description   : Web-based control system for the MiniBot platform.
 
 ====================================================
+            IMPORTANT Target Device
+====================================================
+Target devive: ESP32 Dev Module - esp32
+   
+
+====================================================
               PROGRAM FEATURES
 ====================================================
   - **Robot Control**:
